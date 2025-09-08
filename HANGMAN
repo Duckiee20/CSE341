@@ -1,5 +1,5 @@
 .MODEL SMALL    
-Movie_Guessing MACRO movie,initially,count,c
+Guessing MACRO word,initially,count,c
     local check,exit1,end,start,exit,convert,exit2,skip1,skip2,skip3,skip4,skip5,skip6,win,lose,end2, returnback,end3
     
     start:
@@ -43,7 +43,7 @@ Movie_Guessing MACRO movie,initially,count,c
     MOV dl,correct
     Mov old_correct,dl
     check: 
-        MOV bl,movie[si]
+        MOV bl,word[si]
         cmp bl,al
         jne exit
         cmp initially[si],'-'
@@ -172,7 +172,7 @@ letsplaymsg db '================LETS PLAY================',0Dh,0Ah,0Dh,0Ah,'$'
 pickcategorymsg db 'Please pick a category',0Dh,0Ah,0Dh,0Ah,'$'                                                           
 category1 db 'PRESS 1 TO GUESS MOVIES',0Dh,0Ah,'$'  
 category2 db 'PRESS 2 TO GUESS SONGS',0Dh,0Ah,'$'   
-category3 db 'PRESS 3 TO GUESS PROFESSIONS',0Dh,0Ah,'$'                                                         
+category3 db 'PRESS 3 TO GUESS COUNTRIES',0Dh,0Ah,'$'                                                         
 goodbyemsg db "GOODBYE  :($"     
 
 
@@ -378,7 +378,7 @@ MAIN PROC
             MOV DX, 0        ; clear DX
             MOV BX, 15   
             DIV BX           ; AX / BX, remainder in DX
-            MOV index, DX    ; AX = random number (0-19)
+            MOV index, DX    ; AX = random number (0-15)
              
               
             cmp index,0
@@ -414,49 +414,49 @@ MAIN PROC
             
             
             movie0_sel:
-            Movie_Guessing movie0, initially0, 18, 16
+            Guessing movie0, initially0, 18, 16
             jmp done_select
             movie1_sel:
-            Movie_Guessing movie1, initially1, 5, 5
+            Guessing movie1, initially1, 5, 5
             jmp done_select
             movie2_sel:
-            Movie_Guessing movie2, initially2, 14, 12
+            Guessing movie2, initially2, 14, 12
             jmp done_select
             movie3_sel:
-            Movie_Guessing movie3, initially3, 17, 16
+            Guessing movie3, initially3, 17, 16
             jmp done_select
             movie4_sel:
-            Movie_Guessing movie4, initially4, 9, 8
+            Guessing movie4, initially4, 9, 8
             jmp done_select
             movie5_sel:
-            Movie_Guessing movie5, initially5, 10, 9
+            Guessing movie5, initially5, 10, 9
             jmp done_select
             movie6_sel:
-            Movie_Guessing movie6, initially6, 10, 9
+            Guessing movie6, initially6, 10, 9
             jmp done_select
             movie7_sel:
-            Movie_Guessing movie7, initially7, 9, 9
+            Guessing movie7, initially7, 9, 9
             jmp done_select
             movie8_sel:
-            Movie_Guessing movie8, initially8, 12, 12
+            Guessing movie8, initially8, 12, 12
             jmp done_select
             movie9_sel:
-            Movie_Guessing movie9, initially9, 11, 10
+            Guessing movie9, initially9, 11, 10
             jmp done_select
             movie10_sel:
-            Movie_Guessing movie10, initially10, 6, 6
+            Guessing movie10, initially10, 6, 6
             jmp done_select
             movie11_sel:
-            Movie_Guessing movie11, initially11, 11, 10
+            Guessing movie11, initially11, 11, 10
             jmp done_select
             movie12_sel:
-            Movie_Guessing movie12, initially12, 13, 11
+            Guessing movie12, initially12, 13, 11
             jmp done_select
             movie13_sel:
-            Movie_Guessing movie13, initially13, 13, 12
+            Guessing movie13, initially13, 13, 12
             jmp done_select
             movie14_sel:
-            Movie_Guessing movie14, initially14, 8, 8
+            Guessing movie14, initially14, 8, 8
             jmp done_select
             
              
