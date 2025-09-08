@@ -353,7 +353,7 @@ MAIN PROC
         cmp al,'2' 
         je guesssong       
         cmp al,'3' 
-        je guessprofession
+        je guesscountry
 
         
         jmp main_display
