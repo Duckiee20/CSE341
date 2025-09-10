@@ -1,0 +1,852 @@
+.MODEL SMALL    
+Movie_Guessing MACRO movie,initially,count,c
+    local check,exit1,end,start,exit,convert,exit2,skip1,skip2,skip3,skip4,skip5,skip6,win,lose,end2, returnback,end3
+    
+    start:
+    cmp score,0
+    je end  
+    MOV BX,c
+    cmp correct,bl
+    je end 
+    mov dh, 19
+    mov dl, 0
+    mov bh, 0
+    mov ah, 02h       ; set cursor
+    int 10h
+    LEA DX,initially
+    MOV ah,9
+    int 21h 
+    
+    MOV AH,2
+    MOV dl,10
+    int 21h
+    MOV dl,13
+    int 21h
+    LEA DX,moviestr1
+    MOV ah,9
+    int 21h 
+    mov ah,1
+    int 21h
+    cmp al,97
+    jl convert
+    jmp exit2 
+    
+    convert:
+        add al,32
+    
+    
+    exit2: 
+    
+    MOV CX,count
+    MOV SI,0
+            
+    MOV dl,correct
+    Mov old_correct,dl
+    check: 
+        MOV bl,movie[si]
+        cmp bl,al
+        jne exit
+        cmp initially[si],'-'
+        jne exit1
+        MOV initially[si],al 
+        inc correct
+        
+        exit:
+        inc si
+    
+    
+    loop check      
+    MOV bl,correct
+    cmp old_correct,bl
+    jne exit1
+    dec score  
+    cmp score, 5
+    jne skip1
+    call Draw_head
+    skip1: 
+    
+    cmp score, 4
+    jne skip2
+    call Draw_body
+    skip2:
+    
+    cmp score, 3
+    jne skip3
+    call Draw_left_hand
+    skip3:
+    
+    cmp score, 2
+    jne skip4
+    call Draw_right_hand
+    skip4:
+    
+    cmp score, 1
+    jne skip5
+    call Draw_left_leg
+    skip5:
+    
+    cmp score, 0
+    jne skip6
+    call Draw_right_leg
+    skip6:
+    
+    
+    exit1:
+          
+    mov dh, 20
+    mov dl, 19
+    mov bh, 0
+    mov ah, 02h       ; set cursor
+    int 10h  
+    MOV ah,2
+    mov dl, ' '
+    int 21h
+    jmp start    
+      
+    
+    end:
+    
+    mov ah, 0x00    ; function: set video mode
+    mov al, 0x03    ; 80x25 text mode
+    int 0x10   
+    cmp score,0
+    je lose 
+       
+    LEA DX,winmsg
+    MOV ah,9 
+    int 21h
+    LEA DX,initially
+    int 21h  
+    LEA DX,correctly
+    int 21h
+    jmp end2 
+    lose:  
+    LEA DX,losemsg
+    MOV ah,9 
+    int 21h   
+    end2:  
+    
+    MOV CX,count
+    LEA SI,initially
+    returnback:  
+        mov al,[SI] 
+        cmp al,' '
+        je end3  
+        mov [SI],'-'
+        end3:     
+        inc si
+        
+    
+    
+    loop returnback
+       
+    
+
+    
+ENDM
+
+.STACK 100H
+
+.DATA
+; no extra data needed  
+
+msg1      db '================ WELCOME TO HANGMAN ================',0Dh,0Ah,'$'
+msg2      db 'Press P to Play | Press R to Read Rules | Press E to Exit',0Dh,0Ah,'$'
+msg3      db 'Enter your choice: $' 
+msg4      db 'Press any other key to enter main menu$'
+errormsg1 db 'Invalid input! Please try again.$' 
+erasemsg1 db '                                $'
+ 
+index dw  0 
+
+instr0 db 'HANGMAN GAME INSTRUCTIONS:',0Dh,0Ah,'$'
+instr1 db '1. The computer picks a secret word based on the category.',0Dh,0Ah,'$'
+instr2 db '2. Guess the word by suggesting letters one at a time.',0Dh,0Ah,'$'
+instr3 db '3. Each correct guess reveals the letter in the word.',0Dh,0Ah,'$'
+instr4 db '4. Each wrong guess adds a part to the hangman.',0Dh,0Ah,'$'
+instr5 db '5. You win if you guess the word before hangman is complete.',0Dh,0Ah,'$'
+instr6 db '6. You lose if the hangman is fully drawn first.',0Dh,0Ah,'$'
+instr7 db 'Press any key to return to the main menu...$'        
+
+letsplaymsg db '================LETS PLAY================',0Dh,0Ah,0Dh,0Ah,'$' 
+pickcategorymsg db 'Please pick a category',0Dh,0Ah,0Dh,0Ah,'$'                                                           
+category1 db 'PRESS 1 TO GUESS MOVIES',0Dh,0Ah,'$'  
+category2 db 'PRESS 2 TO GUESS SONGS',0Dh,0Ah,'$'   
+category3 db 'PRESS 3 TO GUESS COUNTRIES',0Dh,0Ah,'$'                                                         
+goodbyemsg db "GOODBYE  :($"     
+
+
+row DB 0       ; current row
+col DB 0       ; current column
+msg DB '==================GUESS THE MOVIE!==================$'
+countrymsg DB '==================GUESS THE COUNTRY!==================$'   
+ground DB '____________________$'        
+stick db '_______$'
+
+moviestr1 db "Guess a character: $"
+winmsg db "Congratulations you guessed $" 
+losemsg db "YOU LOSE :($"   
+playagainmsg db "Press P to play again or Press any other key to enter main menu....$"
+correctly db " correctly$"
+initially0 db "---- ----- -------$"
+movie0     db "kpop demon hunters$"
+initially1 db "-----$"
+movie1     db "anora$"
+initially2 db "-- ------ ----$"
+movie2     db "my oxford year$"
+initially3 db "-------- --------$"
+movie3 db     "bohemian rhapsody$"
+initially4 db "---- ----$"
+movie4     db "your name$"
+initially5 db "---- -----$"
+movie5     db "mean girls$"
+initially6 db "------ ---$"
+movie6     db "inside out$"
+initially7 db "---------$"
+movie7     db "inception$"
+initially8 db "------------$"
+movie8     db "interstellar$"
+initially9 db "---- ------$"
+movie9     db "dark knight$"
+initially10 db "------$"
+movie10     db "frozen$"
+initially11 db "---- ------$"
+movie11     db "jojo rabbit$"
+initially12 db "---- -- -----$"
+movie12     db "kung fu panda$"
+initially13 db "-------- ----$"
+movie13     db "spirited away$"
+initially14 db "--------$"
+movie14     db "parasite$" 
+
+; ========== COUNTRIES DATA ==========
+
+initially15 db "--------$"    
+country15   db "australia$"   
+
+initially16 db "------$"      
+country16   db "canada$"      
+
+initially17 db "---------$"   
+country17   db "palestine$"   
+
+initially18 db "-------$"     
+country18   db "nigeria$"     
+
+initially19 db "----$"        
+country19   db "iran$"        
+
+initially20 db "-----$"       
+country20   db "italy$"       
+
+initially21 db "-----$"       
+country21   db "japan$"       
+
+initially22 db "------$"      
+country22   db "mexico$"      
+
+initially23 db "------$"      
+country23   db "turkey$"      
+
+initially24 db "------$"      
+country24   db "brazil$"      
+
+initially25 db "----------$"  
+country25   db "bangladesh$"  
+
+initially26 db "--------$"    
+country26   db "malaysia$"    
+
+initially27 db "-----$"       
+country27   db "korea$"       
+
+initially28 db "------$"      
+country28   db "sweden$"      
+
+initially29 db "-------$"     
+country29   db "finland$"     
+
+
+
+
+
+correct db 0
+score db 6
+old_correct db 0 
+
+
+.CODE
+MAIN PROC
+    ; initialize DS
+    MOV AX,@DATA
+    MOV DS,AX 
+    
+    main_display: 
+    mov ah, 0x00    ; function: set video mode
+    mov al, 0x03    ; 80x25 text mode
+    int 0x10 
+    LEA DX,msg1
+    MOV AH,9
+    int 21h   
+    
+    mov ah, 2
+    mov dx, 10
+    int 21h 
+    mov dx, 13
+    int 21h 
+    
+    LEA DX,msg2
+    MOV AH,9
+    int 21h  
+    
+    mov ah, 2
+    mov dx, 10
+    int 21h 
+    mov dx, 13
+    int 21h  
+     
+    choice:
+    MOV AH,1
+    int 21h 
+    
+    cmp al,'p' 
+    je play
+    cmp al,'P'
+    je play 
+    
+    cmp al,'r' 
+    je read_instruction
+    cmp al,'R'
+    je read_instruction
+    
+    cmp al,'e' 
+    je exit_game
+    cmp al,'E'
+    je exit_game 
+    
+    MOv ah,2
+    mov dx, 13
+    int 21h  
+    LEA DX,errormsg1
+    MOV AH,9
+    int 21h 
+    call delay 
+    MOv ah,2
+    mov dx, 13
+    int 21h
+    LEA DX,erasemsg1
+    MOV AH,9
+    int 21h 
+    MOv ah,2
+    mov dx, 13
+    int 21h
+    jmp choice
+    
+           
+    
+    read_instruction:
+        mov ah, 0x00    ; function: set video mode
+        mov al, 0x03    ; 80x25 text mode
+        int 0x10   
+        MOV AH,9
+        LEA DX,instr0
+        int 21h 
+        LEA DX,instr1
+        int 21h         
+        LEA DX,instr2
+        int 21h 
+        LEA DX,instr3
+        int 21h 
+        LEA DX,instr4
+        int 21h 
+        LEA DX,instr5
+        int 21h      
+        LEA DX,instr6
+        int 21h 
+        LEA DX,instr7
+        int 21h  
+        mov ah,1
+        int 21h
+        jmp main_display
+    
+    play: 
+        mov ah, 0x00    ; function: set video mode
+        mov al, 0x03    ; 80x25 text mode
+        int 0x10  
+        
+        MOV AH,9
+        LEA DX,letsplaymsg
+        int 21h   
+        LEA DX,pickcategorymsg
+        int 21h               
+        LEA DX,category1
+        int 21h  
+        LEA DX,category2
+        int 21h
+        LEA DX,category3
+        int 21h  
+        LEA DX,msg4
+        mov ah,9
+        int 21h
+        mov ah,2
+        mov dl,10
+        int 21h
+        mov dl,13
+        int 21h
+        
+        pick:
+        MOV AH,1
+        int 21h        
+        cmp al,'1' 
+        je guessmovie       
+        cmp al,'2' 
+        je guesssong       
+        cmp al,'3' 
+        je guesscountry
+
+        
+        jmp main_display
+        
+        
+        guessmovie:   
+            mov ax, 0003h
+            int 10h     
+            LEA DX,msg
+            MOV AH,9
+            int 21h   
+            
+            
+        
+        
+            call Draw_ground
+            call Draw_stand 
+            call Draw_stick  
+            MOV AH, 00h      ; Get random number
+            INT 1Ah          ; CX:DX = system timer ticks since midnight
+            MOV AX, DX       ; take low word (changes fast)
+            MOV DX, 0        ; clear DX
+            MOV BX, 15   
+            DIV BX           ; AX / BX, remainder in DX
+            MOV index, DX    ; AX = random number (0-19)
+             
+              
+            cmp index,0
+            je movie0_sel
+            cmp index,1
+            je movie1_sel
+            cmp index,2
+            je movie2_sel
+            cmp index,3
+            je movie3_sel
+            cmp index,4
+            je movie4_sel
+            cmp index,5
+            je movie5_sel
+            cmp index,6
+            je movie6_sel
+            cmp index,7
+            je movie7_sel
+            cmp index,8
+            je movie8_sel
+            cmp index,9
+            je movie9_sel
+            cmp index,10
+            je movie10_sel
+            cmp index,11
+            je movie11_sel
+            cmp index,12
+            je movie12_sel
+            cmp index,13
+            je movie13_sel
+            cmp index,14
+            je movie14_sel
+            
+            
+            movie0_sel:
+            Movie_Guessing movie0, initially0, 18, 16
+            jmp done_select
+            movie1_sel:
+            Movie_Guessing movie1, initially1, 5, 5
+            jmp done_select
+            movie2_sel:
+            Movie_Guessing movie2, initially2, 14, 12
+            jmp done_select
+            movie3_sel:
+            Movie_Guessing movie3, initially3, 17, 16
+            jmp done_select
+            movie4_sel:
+            Movie_Guessing movie4, initially4, 9, 8
+            jmp done_select
+            movie5_sel:
+            Movie_Guessing movie5, initially5, 10, 9
+            jmp done_select
+            movie6_sel:
+            Movie_Guessing movie6, initially6, 10, 9
+            jmp done_select
+            movie7_sel:
+            Movie_Guessing movie7, initially7, 9, 9
+            jmp done_select
+            movie8_sel:
+            Movie_Guessing movie8, initially8, 12, 12
+            jmp done_select
+            movie9_sel:
+            Movie_Guessing movie9, initially9, 11, 10
+            jmp done_select
+            movie10_sel:
+            Movie_Guessing movie10, initially10, 6, 6
+            jmp done_select
+            movie11_sel:
+            Movie_Guessing movie11, initially11, 11, 10
+            jmp done_select
+            movie12_sel:
+            Movie_Guessing movie12, initially12, 13, 11
+            jmp done_select
+            movie13_sel:
+            Movie_Guessing movie13, initially13, 13, 12
+            jmp done_select
+            movie14_sel:
+            Movie_Guessing movie14, initially14, 8, 8
+            jmp done_select
+            
+             
+            done_select: 
+            
+            mov correct,0
+            mov score,6
+            mov old_correct,0 
+            
+            MOV AH,2
+            MOV DL,10
+            int 21h
+            MOV DL,13 
+            int 21h
+            LEA DX,playagainmsg
+            MOV AH,9
+            int 21h  
+            mov ah,1
+            int 21h
+            cmp al,'P'
+            je play
+            cmp al,'p'
+            je play
+            jmp main_display
+            
+              
+        guesssong:
+        
+        
+        guesscountry:
+            mov ax, 0003h
+            int 10h     
+            LEA DX,countrymsg
+            MOV AH,9
+            int 21h
+            
+            call Draw_ground
+            call Draw_stand 
+            call Draw_stick  
+            MOV AH, 00h      ; Get random number
+            INT 1Ah          ; CX:DX = system timer ticks since midnight
+            MOV AX, DX       ; take low word (changes fast)
+            MOV DX, 0        ; clear DX
+            MOV BX, 15       ; 15 countries (indices 15-29)
+            DIV BX           ; AX / BX, remainder in DX
+            MOV index, DX    ; AX = random number (0-14)
+            
+            cmp index,0
+            je country15_sel
+            cmp index,1
+            je country16_sel
+            cmp index,2
+            je country17_sel
+            cmp index,3
+            je country18_sel
+            cmp index,4
+            je country19_sel
+            cmp index,5
+            je country20_sel
+            cmp index,6
+            je country21_sel
+            cmp index,7
+            je country22_sel
+            cmp index,8
+            je country23_sel
+            cmp index,9
+            je country24_sel
+            cmp index,10
+            je country25_sel
+            cmp index,11
+            je country26_sel
+            cmp index,12
+            je country27_sel
+            cmp index,13
+            je country28_sel
+            cmp index,14
+            je country29_sel
+            
+            country15_sel:
+            Movie_Guessing country15, initially15, 9, 8  ; australia
+            jmp done_select2
+            country16_sel:
+            Movie_Guessing country16, initially16, 7, 6  ; canada
+            jmp done_select2
+            country17_sel:
+            Movie_Guessing country17, initially17, 10, 9 ; palestine
+            jmp done_select2
+            country18_sel:
+            Movie_Guessing country18, initially18, 8, 7  ; nigeria
+            jmp done_select2
+            country19_sel:
+            Movie_Guessing country19, initially19, 5, 4  ; iran
+            jmp done_select2
+            country20_sel:
+            Movie_Guessing country20, initially20, 6, 5  ; italy
+            jmp done_select2
+            country21_sel:
+            Movie_Guessing country21, initially21, 6, 5  ; japan
+            jmp done_select2
+            country22_sel:
+            Movie_Guessing country22, initially22, 7, 6  ; mexico
+            jmp done_select2
+            country23_sel:
+            Movie_Guessing country23, initially23, 7, 6  ; turkey
+            jmp done_select2
+            country24_sel:
+            Movie_Guessing country24, initially24, 7, 6  ; brazil
+            jmp done_select2
+            country25_sel:
+            Movie_Guessing country25, initially25, 11, 10 ; bangladesh
+            jmp done_select2
+            country26_sel:
+            Movie_Guessing country26, initially26, 9, 8  ; malaysia
+            jmp done_select2
+            country27_sel:
+            Movie_Guessing country27, initially27, 6, 5  ; korea
+            jmp done_select2
+            country28_sel:
+            Movie_Guessing country28, initially28, 7, 6  ; sweden
+            jmp done_select2
+            country29_sel:
+            Movie_Guessing country29, initially29, 8, 7  ; finland
+            jmp done_select2
+            
+            done_select2: 
+            
+            mov correct,0
+            mov score,6
+            mov old_correct,0 
+            
+            MOV AH,2
+            MOV DL,10
+            int 21h
+            MOV DL,13 
+            int 21h
+            LEA DX,playagainmsg
+            MOV AH,9
+            int 21h  
+            mov ah,1
+            int 21h
+            cmp al,'P'
+            je play
+            cmp al,'p'
+            je play
+            jmp main_display
+            
+            
+   
+    exit_game:  
+    mov ah, 0x00    ; function: set video mode
+    mov al, 0x03    ; 80x25 text mode
+    int 0x10  
+    
+    LEA DX,goodbyemsg
+    MOV AH,9
+    int 21h 
+    
+    ; --- Exit to DOS ---
+    MOV AX,4C00H
+    INT 21H
+MAIN ENDP 
+    delay proc
+        mov cx, 10       
+        outer:
+            mov dx, 0FFFFh  
+        loop outer 
+        ret
+    endp delay 
+    Draw_ground PROC
+
+    
+        mov dh, 13
+        mov dl, 5
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        lea dx, ground
+        mov ah, 09h       ; DOS print string ($ terminated)
+        int 21h
+    
+        ret
+    Draw_ground ENDP    
+    
+    Draw_stand PROC
+    
+        MOV CX,10 
+        MOV row,4
+        MOV col,5
+        start1:
+        mov dh, row
+        mov dl, col
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov dl,'|'
+        mov ah, 02h       ; DOS print string ($ terminated)
+        int 21h 
+        inc row
+        loop start1
+    
+        ret
+    Draw_stand ENDP  
+    
+    Draw_stick PROC
+    
+    
+        mov dh, 5
+        mov dl, 6
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        lea dx, stick
+        mov ah, 09h       ; DOS print string ($ terminated)
+        int 21h   
+        
+        mov dh, 6
+        mov dl, 12
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'|'
+        int 21h
+    
+        ret
+    Draw_stick ENDP      
+    
+    Draw_head PROC   
+        
+        mov dh, 7
+        mov dl, 12
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'O'
+        int 21h
+    
+        ret
+    Draw_head ENDP  
+    
+    Draw_body PROC
+    
+    
+        
+        mov dh, 8
+        mov dl, 12
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'|'
+        int 21h   
+        mov dh, 9
+        mov dl, 12
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'|'
+        int 21h     
+        
+        mov dh, 10
+        mov dl, 12
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'|'
+        int 21h
+    
+        ret
+    Draw_body ENDP   
+    
+    Draw_left_leg PROC   
+        
+        mov dh, 11
+        mov dl, 11
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'/'
+        int 21h
+    
+        ret
+    Draw_left_leg ENDP 
+    
+    Draw_right_leg PROC   
+        
+        mov dh, 11
+        mov dl, 13
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'\'
+        int 21h
+    
+        ret
+    Draw_right_leg ENDP  
+    
+    
+    Draw_left_hand PROC   
+        
+        mov dh, 9
+        mov dl, 11
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'/'
+        int 21h
+    
+        ret
+    Draw_left_hand ENDP   
+    
+    
+    Draw_right_hand PROC   
+        
+        mov dh, 9
+        mov dl, 13
+        mov bh, 0
+        mov ah, 02h       ; set cursor
+        int 10h
+    
+        mov ah, 2       ; DOS print string ($ terminated) 
+        mov dl,'\'
+        int 21h
+    
+        ret
+    Draw_right_hand ENDP
+END MAIN
